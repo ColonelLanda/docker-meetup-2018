@@ -1,0 +1,22 @@
+version: '2'
+
+tasks:
+  build:
+    desc: builds the site content
+    cmds:
+      - docker run --rm  --volume="$PWD:/srv/jekyll"   -it jekyll/jekyll:$JEKYLL_VERSION jekyll build
+    env:
+      JEKYLL_VERSION: "3.8"
+    
+  nginx:
+    desc: runs an nginx container mounting the _site folder
+    cmds:
+      - docker run --rm -v $PWD/_site:/usr/share/nginx/html:ro -p 80:80 nginx
+  
+  serve:
+    desc: serves the static site on port 4000
+    cmds:
+      - docker rm -f jekyll || 0
+      - docker run --name jekyll  --volume="$PWD:/srv/jekyll"  -p 4000:4000  -d jekyll/jekyll:$JEKYLL_VERSION jekyll serve --drafts
+    env:
+      JEKYLL_VERSION: "3.8"
